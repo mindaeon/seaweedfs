@@ -75,6 +75,15 @@ expires_after_seconds = 10           # seconds
 key = ""
 expires_after_seconds = 10           # seconds
 
+# Optional, off by default. If this key is set, the filer's SubscribeMetadata and
+# SubscribeLocalMetadata gRPC calls require an mTLS-verified peer, an admin token
+# (jwt.filer_signing.key), or a read-only token signed with this key that lists
+# the path prefixes (allowed_prefixes) its holder may see events for. Events that
+# name a path outside them are not sent. Other filers and filer.sync need mTLS or
+# an admin token once it is set.
+[jwt.filer_signing.subscribe]
+key = ""
+
 # gRPC mTLS configuration
 # All gRPC TLS authentications are mutual (mTLS)
 # The values for ca, cert, and key are paths to the certificate/key files
