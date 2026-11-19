@@ -473,7 +473,19 @@ func (engine *PolicyEngine) ExtractConditionValuesFromRequest(r *http.Request) m
 	// HTTP method
 	values["s3:RequestMethod"] = []string{r.Method}
 
-	// Extract custom headers with s3: prefix for AWS-compatible condition keys
+	for key, headerValues := range AmzHeaderConditionValues(r) {
+		values[key] = headerValues
+	}
+
+	return values
+}
+
+// AmzHeaderConditionValues returns the request's x-amz-* headers as the
+// s3:x-amz-* condition keys policies are written against. Every caller that
+// evaluates policy conditions, for static identities and for STS sessions
+// alike, builds these keys here so the two cannot drift apart.
+func AmzHeaderConditionValues(r *http.Request) map[string][]string {
+	values := make(map[string][]string)
 	for key, headerValues := range r.Header {
 		lowerKey := strings.ToLower(key)
 		if strings.HasPrefix(lowerKey, "x-amz-") {
@@ -499,7 +511,6 @@ func (engine *PolicyEngine) ExtractConditionValuesFromRequest(r *http.Request) m
 		}
 		values[sseKey] = normalized
 	}
-
 	return values
 }
 
